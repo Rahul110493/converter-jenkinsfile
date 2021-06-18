@@ -18,7 +18,7 @@ const directives = {
     // {"sh":  "Run arbitrary Java"}
     let stepObject = {};
 
-    stepObject[`run`][`name`] = 'Consider re-writing as a CircleCI run step';
+    stepObject[`name`] = 'Consider re-writing as a CircleCI run step';
     stepObject[`run`] =
       step.name +
       ' ' +
