@@ -5,9 +5,9 @@ const yaml = require('js-yaml');
  */
 class CircleConfig {
   /**
-   * @type {number}
+   * @type {string}
    */
-  version;
+  name;
 
   /**
    * @type {{ [shorthand: string]: string }}
@@ -72,12 +72,12 @@ class CircleConfig {
   /**
    * @param {number} version
    */
-  constructor(version) {
-    this.version = version;
+  constructor(name) {
+    this.name = name;
     this.jobs = {};
 
     this.workflows = {
-      version: 2
+      name: "Build and Deploy"
     };
 
     this.comments = [];
