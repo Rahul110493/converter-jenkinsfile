@@ -17,7 +17,7 @@ const { mapConditions } = require('./mapper_conditions.js');
 const { prepMapEnvironment } = require('./mapper_directives.js');
 
 const map = (arr) => {
-  const config = new CircleConfig(2.1);
+  const config = new CircleConfig("Test and Deploy");
   const pipeline = arr['pipeline'];
 
   if (!pipeline) {
