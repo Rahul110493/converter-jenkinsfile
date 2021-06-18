@@ -43,30 +43,31 @@ const map = (arr) => {
 };
 
 const mapStages = (stages, mapEnvironment, config) => {
-  const workflow = new CircleWorkflowItem();
+ // const workflow = new CircleWorkflowItem();
   // Hard-coded workflow name--no multiple workflow support yet
-  config['workflows']['build-and-test'] = workflow;
+  //config['workflows']['build-and-test'] = workflow;
 
   stages.forEach((stage) => {
     const workflowJobConditionObj = new CircleWorkflowJobCondition();
     // let envVars = stage['environment'];
 
-    if (workflow.jobs.length > 0) {
-      let precedingJobName;
-      if (workflow.jobs.length === 1) {
-        precedingJobName = [workflow.jobs[workflow.jobs.length - 1]];
-      } else {
-        precedingJobName = Object.keys(workflow.jobs[workflow.jobs.length - 1]);
-      }
 
-      workflowJobConditionObj['requires'] = precedingJobName;
-    }
 
-    if (!stage.parallel) {
-      mapJob(stage, mapEnvironment, workflow, workflowJobConditionObj, config['jobs']);
+   if (stages.length > 0) {
+	         let precedingJobName;
+	         if (stages.length === 1) {
+			         precedingJobName = [stages[stages.length - 1]];
+			       } else {
+				               precedingJobName = Object.keys(stages[stages.length - 1]);
+				             }
+	   
+	         workflowJobConditionObj['needs'] = precedingJobName;
+	       }
+	  if (!stage.parallel) {
+      mapJob(stage, mapEnvironment, workflowJobConditionObj, config['jobs']);
     } else {
       stage.parallel.forEach((parallelStage) => {
-        mapJob(parallelStage, mapEnvironment, workflow, workflowJobConditionObj, config['jobs']);
+        mapJob(parallelStage, mapEnvironment, workflowJobConditionObj, config['jobs']);
       });
     }
   });
@@ -94,7 +95,7 @@ const dockerImagesForJob = (stage) => {
   }
 };
 
-const mapJob = (stage, mapEnvironment, workflow, conditions, config) => {
+const mapJob = (stage, mapEnvironment,  conditions, config) => {
   let job = new CircleJob();
 
   job.docker = dockerImagesForJob(stage);
@@ -102,29 +103,26 @@ const mapJob = (stage, mapEnvironment, workflow, conditions, config) => {
 
   mapConditions(stage, conditions);
 
-  let workflowJobName = stage.name.replace(/ /g, '-').toLowerCase();
+  let stageJobName = stage.name.replace(/ /g, '-').toLowerCase();
   if (assignedFields(conditions)) {
-    workflow.jobs.push({ [workflowJobName]: conditions });
+    stage.steps.push({ [stageJobName]: conditions });
   } else {
-    workflow.jobs.push(workflowJobName);
+    stage.steps.push(stageJobName);
   }
 
   if (stage.stages) {
     // TODO: Implement support for nested stages
     job.steps = [
-      {
-        run: {
-          name: 'Nested stage not unsupported',
-          command: 'echo "Nested stages are not supported yet."',
-          JFC_STACK_TRACE: JSON.stringify(stage)
-        }
-      }
+         {
+        run: JSON.stringify(stage),
+        name: 'Nested stage not unsupported',     
+      } 
     ];
   } else {
     job.steps = fnPerVerb(stage.branches[0].steps);
   }
 
-  config[workflowJobName] = job;
+  config[stageJobName] = job;
 };
 
 module.exports = { map };
