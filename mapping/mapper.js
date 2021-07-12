@@ -18,6 +18,8 @@ const { prepMapEnvironment } = require('./mapper_directives.js');
 
 const map = (arr) => {
   const config = new CircleConfig("Test and Deploy");
+ 
+	//config['on']['push']['branches']="";
   const pipeline = arr['pipeline'];
 
   if (!pipeline) {
@@ -104,11 +106,6 @@ const mapJob = (stage, mapEnvironment,  conditions, config) => {
   mapConditions(stage, conditions);
 
   let stageJobName = stage.name.replace(/ /g, '-').toLowerCase();
-  if (assignedFields(conditions)) {
-    stage.steps.push({ [stageJobName]: conditions });
-  } else {
-    stage.steps.push(stageJobName);
-  }
 
   if (stage.stages) {
     // TODO: Implement support for nested stages
@@ -121,7 +118,11 @@ const mapJob = (stage, mapEnvironment,  conditions, config) => {
   } else {
     job.steps = fnPerVerb(stage.branches[0].steps);
   }
-
+  if (assignedFields(conditions)) {
+    stage.branches[0].steps.push({ [`needs`]: stageJobName });
+  } else {
+    stage.branches[0].push(stageJobName);
+  }
   config[stageJobName] = job;
 };
 

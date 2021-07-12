@@ -74,12 +74,10 @@ class CircleConfig {
    */
   constructor(name) {
     this.name = name;
+    this.on = {};
+    this.on[`push`] = {};
+    this.on[`push`][`branches`] = {}; 
     this.jobs = {};
-
-    this.workflows = {
-      name: "Build and Deploy"
-    };
-
     this.comments = [];
 
     Object.defineProperty(this, 'comments', { enumerable: false });
